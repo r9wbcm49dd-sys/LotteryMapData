@@ -1,7 +1,11 @@
-import requests
+name: Test
 
-url = "https://wordpresswebapi.azurewebsites.net/api/ElectronicDrawing/ElectronicDrawingDateSearch/8/2026-06-14/2026-06-19%2023:59"
+on:
+  workflow_dispatch:
 
-data = requests.get(url).json()
+jobs:
+  test:
+    runs-on: ubuntu-latest
 
-print(data[-1])
+    steps:
+      - run: echo "hello"
