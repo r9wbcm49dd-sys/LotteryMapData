@@ -1,4 +1,4 @@
-name: Test
+name: Lottery API Test
 
 on:
   workflow_dispatch:
@@ -8,4 +8,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - run: echo "hello"
+
+      - name: Test LuckyWizard and PowerMe
+        run: |
+          python3 << 'EOF'
+          import requests
+          import json
+
+          print("")
+          print("===== LUCKYWIZARD =====")
+          print("")
+
+          url = "https://wordpresswebapi.azurewebsites.net/api/ElectronicDrawing/ElectronicDrawingDateSearch/8/2026-06-14/2026-06-19%2023:59"
+
+          data = requests.get(url).json()
+
+          print(json.dumps(data[-1], indent=2))
+
+          print("")
+          print("===== POWERME =====")
+          print("")
+
+          url = "https://wordpresswebapi.azurewebsites.net/api/ElectronicDrawing/ElectronicDrawingDateSearch/10/2026-06-14/2026-06-19%2023:59"
+
+          data = requests.get(url).json()
+
+          print(json.dumps(data[-1], indent=2))
+
+          EOF
