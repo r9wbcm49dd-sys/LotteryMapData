@@ -3,36 +3,76 @@ name: Lottery API Test
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
 
-      - name: Test LuckyWizard and PowerMe
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Update TwoCharms Day
         run: |
           python3 << 'EOF'
+          import csv
           import requests
-          import json
+          from io import StringIO
 
-          print("")
-          print("===== LUCKYWIZARD =====")
-          print("")
-
-          url = "https://wordpresswebapi.azurewebsites.net/api/ElectronicDrawing/ElectronicDrawingDateSearch/8/2026-06-14/2026-06-19%2023:59"
+          url = "https://wordpresswebapi.azurewebsites.net/api/ElectronicDrawing/ElectronicDrawingDateSearch/2/2026-06-14/2026-06-19%2023:59"
 
           data = requests.get(url).json()
 
-          print(json.dumps(data[-1], indent=2))
+          csv_path = "csv/twocharms_day.csv"
 
-          print("")
-          print("===== POWERME =====")
-          print("")
+          with open(csv_path, "r", newline="") as f:
+              reader = csv.DictReader(f)
+              rows = list(reader)
 
-          url = "https://wordpresswebapi.azurewebsites.net/api/ElectronicDrawing/ElectronicDrawingDateSearch/10/2026-06-14/2026-06-19%2023:59"
+          existing_dates = {row["date"] for row in rows}
 
-          data = requests.get(url).json()
+          added = 0
 
-          print(json.dumps(data[-1], indent=2))
+          for draw in data:
+              draw_date = draw["drawingDate"][:10]
 
+              if draw_date in existing_dates:
+                  continue
+
+              result = draw["results"].zfill(2)
+
+              rows.append({
+                  "date": draw_date,
+                  "p1": result[0],
+                  "p2": result[1],
+                  "number": result
+              })
+
+              existing_dates.add(draw_date)
+              added += 1
+              print("ROW ADDED:", draw_date, result)
+
+          rows.sort(key=lambda row: row["date"])
+
+          with open(csv_path, "w", newline="") as f:
+              writer = csv.DictWriter(f, fieldnames=["date", "p1", "p2", "number"])
+              writer.writeheader()
+              writer.writerows(rows)
+
+          print("ROWS ADDED:", added)
+          print("LAST ROW:", rows[-1])
           EOF
+
+      - name: Commit and Push
+        run: |
+          git config user.name "LotteryMap Bot"
+          git config user.email "actions@github.com"
+
+          git add csv/twocharms_day.csv
+
+          git diff --staged --quiet || git commit -m "Auto update twocharms_day"
+
+          git push
