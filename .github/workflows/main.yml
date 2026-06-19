@@ -1,4 +1,4 @@
-name: LotteryMap Test
+name: Lottery API Test
 
 on:
   workflow_dispatch:
@@ -8,7 +8,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Hello LotteryMap
+      - name: Call Puerto Rico Lottery API
         run: |
-          echo "HELLO LOTTERYMAP"
-          echo "GitHub Actions is working"
+          curl "https://wordpresswebapi.azurewebsites.net/api/ElectronicDrawing/ElectronicDrawingDateSearch/6/2026-06-16/2026-06-19%2023:59"
