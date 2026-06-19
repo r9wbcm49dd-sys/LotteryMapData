@@ -1,0 +1,14 @@
+name: LotteryMap Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Hello LotteryMap
+        run: |
+          echo "HELLO LOTTERYMAP"
+          echo "GitHub Actions is working"
