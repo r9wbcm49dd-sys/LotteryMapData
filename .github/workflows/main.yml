@@ -20,41 +20,45 @@ jobs:
           python3 << 'EOF'
           import requests
 
-          url = "https://wordpresswebapi.azurewebsites.net/api/ElectronicDrawing/ElectronicDrawingDateSearch/2/2026-06-18/2026-06-19%2023:59"
+          url = "https://wordpresswebapi.azurewebsites.net/api/ElectronicDrawing/ElectronicDrawingDateSearch/2/2026-06-14/2026-06-19%2023:59"
 
           data = requests.get(url).json()
-          last = data[-1]
-
-          api_date = last["drawingDate"][:10]
-
-          result = last["results"].zfill(2)
-
-          p1 = result[0]
-          p2 = result[1]
-
-          new_row = f"{api_date},{p1},{p2},{result}"
 
           with open("csv/twocharms_day.csv", "r") as f:
               rows = f.read().strip().splitlines()
 
-          last_csv_row = rows[-1]
-          last_csv_date = last_csv_row.split(",")[0]
+          existing_dates = set()
 
-          print("LAST CSV DATE:", last_csv_date)
-          print("API DATE:", api_date)
+          for row in rows[1:]:
+              if row.strip():
+                  existing_dates.add(row.split(",")[0])
 
-          if api_date > last_csv_date:
+          rows_added = 0
 
-              print("UPDATE REQUIRED: YES")
+          with open("csv/twocharms_day.csv", "a") as f:
 
-              with open("csv/twocharms_day.csv", "a") as f:
+              for draw in data:
+
+                  draw_date = draw["drawingDate"][:10]
+
+                  if draw_date in existing_dates:
+                      continue
+
+                  result = draw["results"].zfill(2)
+
+                  p1 = result[0]
+                  p2 = result[1]
+
+                  new_row = f"{draw_date},{p1},{p2},{result}"
+
                   f.write("\n" + new_row)
 
-              print("ROW ADDED:", new_row)
+                  rows_added += 1
 
-          else:
+                  print("ROW ADDED:", new_row)
 
-              print("UPDATE REQUIRED: NO")
+          print("")
+          print("ROWS ADDED:", rows_added)
           EOF
 
       - name: Commit and Push
