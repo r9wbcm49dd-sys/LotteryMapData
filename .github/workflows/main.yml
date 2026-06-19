@@ -8,7 +8,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Convert API to LotteryMap Format
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Update TwoCharms Day
         run: |
           python3 << 'EOF'
           import requests
@@ -16,18 +19,44 @@ jobs:
           url = "https://wordpresswebapi.azurewebsites.net/api/ElectronicDrawing/ElectronicDrawingDateSearch/2/2026-06-18/2026-06-19%2023:59"
 
           data = requests.get(url).json()
-
           last = data[-1]
 
-          date = last["drawingDate"][:10]
-
+          api_date = last["drawingDate"][:10]
           result = last["results"].zfill(2)
 
           p1 = result[0]
           p2 = result[1]
 
+          new_row = f"{api_date},{p1},{p2},{result}"
+
+          with open("csv/twocharms_day.csv", "r") as f:
+              rows = f.read().strip().splitlines()
+
+          last_csv_row = rows[-1]
+          last_csv_date = last_csv_row.split(",")[0]
+
           print("")
-          print("LOTTERYMAP ROW")
-          print(f"{date},{p1},{p2},{result}")
+          print("LAST CSV DATE:", last_csv_date)
+          print("API DATE:", api_date)
           print("")
+
+          if api_date > last_csv_date:
+              print("UPDATE REQUIRED: YES")
+              print("NEW ROW:", new_row)
+
+              with open("csv/twocharms_day.csv", "a") as f:
+                  f.write("\n" + new_row)
+
+              print("")
+              print("ROW ADDED TO CSV")
+          else:
+              print("UPDATE REQUIRED: NO")
+
+          print("")
+          print("LAST CSV ROW NOW:")
+
+          with open("csv/twocharms_day.csv", "r") as f:
+              rows = f.read().strip().splitlines()
+
+          print(rows[-1])
           EOF
