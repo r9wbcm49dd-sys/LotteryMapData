@@ -8,15 +8,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Test Game IDs
+      - name: Convert API to LotteryMap Format
         run: |
-          for id in {1..20}
-          do
-            echo ""
-            echo "========== GAME ID $id =========="
+          python3 << 'EOF'
+          import requests
 
-            curl -s "https://wordpresswebapi.azurewebsites.net/api/ElectronicDrawing/ElectronicDrawingDateSearch/$id/2026-06-16/2026-06-19%2023:59" | head -c 500
+          url = "https://wordpresswebapi.azurewebsites.net/api/ElectronicDrawing/ElectronicDrawingDateSearch/2/2026-06-18/2026-06-19%2023:59"
 
-            echo ""
-            echo ""
-          done
+          data = requests.get(url).json()
+
+          last = data[-1]
+
+          date = last["drawingDate"][:10]
+
+          result = last["results"].zfill(2)
+
+          p1 = result[0]
+          p2 = result[1]
+
+          print("")
+          print("LOTTERYMAP ROW")
+          print(f"{date},{p1},{p2},{result}")
+          print("")
+          EOF
