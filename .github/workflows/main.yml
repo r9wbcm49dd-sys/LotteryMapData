@@ -28,8 +28,8 @@ jobs:
           games = [
               (2, "csv/twocharms_day.csv"),
               (5, "csv/twocharms_night.csv"),
-              #(3, "csv/hint3_day.csv"),
-              #(6, "csv/hint3_night.csv"),
+              (3, "csv/hint3_day.csv"),
+              (6, "csv/hint3_night.csv"),
               #(4, "csv/4Sight_day.csv"),
               #(7, "csv/4Sight_night.csv"),
               #(8, "csv/luckywizard.csv"),
@@ -43,7 +43,7 @@ jobs:
             url = f"https://wordpresswebapi.azurewebsites.net/api/ElectronicDrawing/ElectronicDrawingDateSearch/{game_id}/2026-06-14/2026-06-19%2023:59"
         
             print("")
-            print("PROCESSING:", csv_path)
+            print("PROCESSING:", game_id, csv_path)
         
             data = requests.get(url).json()
         
@@ -55,41 +55,75 @@ jobs:
         
             added = 0
         
+            
             for draw in data:
-        
+    
                 draw_date = draw["drawingDate"][:10]
-        
+    
                 if draw_date in existing_dates:
                     continue
-        
-                result = draw["results"].zfill(2)
-        
-                rows.append({
-                    "date": draw_date,
-                    "p1": result[0],
-                    "p2": result[1],
-                    "number": result
-                })
-        
+    
+                if game_id in [2, 5]:
+    
+                    result = draw["results"].zfill(2)
+    
+                    rows.append({
+                        "date": draw_date,
+                        "p1": result[0],
+                        "p2": result[1],
+                        "number": result
+                    })
+    
+                elif game_id in [3, 6]:
+    
+                    result = draw["results"].zfill(3)
+    
+                    rows.append({
+                        "date": draw_date,
+                        "p1": result[0],
+                        "p2": result[1],
+                        "p3": result[2],
+                        "number": result
+                    })
+    
                 existing_dates.add(draw_date)
                 added += 1
-        
+    
                 print("ROW ADDED:", draw_date, result)
-        
+    
             rows.sort(key=lambda row: row["date"])
-        
+    
             with open(csv_path, "w", newline="") as f:
-        
+    
+                if game_id in [2, 5]:
+    
+                    fieldnames = [
+                        "date",
+                        "p1",
+                        "p2",
+                        "number"
+                    ]
+    
+                elif game_id in [3, 6]:
+    
+                    fieldnames = [
+                        "date",
+                        "p1",
+                        "p2",
+                        "p3",
+                        "number"
+                    ]
+    
                 writer = csv.DictWriter(
                     f,
-                    fieldnames=["date", "p1", "p2", "number"]
+                    fieldnames=fieldnames
                 )
-        
+    
                 writer.writeheader()
                 writer.writerows(rows)
-        
+    
             print("ROWS ADDED:", added)
-        
+    
             if rows:
                 print("LAST ROW:", rows[-1])
           EOF
