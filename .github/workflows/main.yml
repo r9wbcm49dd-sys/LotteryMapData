@@ -134,7 +134,7 @@ jobs:
                         "P3": result[2],
                         "P4": result[3],
                         "P5": result[4],
-                        "Powerball": result[5]
+                        "Powerball": draw["extraBall"]
                     })
 
                 existing_dates.add(draw_date)
