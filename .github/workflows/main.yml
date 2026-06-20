@@ -30,8 +30,8 @@ jobs:
               (5, "csv/twocharms_night.csv"),
               (3, "csv/hint3_day.csv"),
               (6, "csv/hint3_night.csv"),
-              #(4, "csv/4Sight_day.csv"),
-              #(7, "csv/4Sight_night.csv"),
+              (4, "csv/4Sight_day.csv"),
+              (7, "csv/4Sight_night.csv"),
               #(8, "csv/luckywizard.csv"),
               #(10, "csv/powerme.csv")
           ]
@@ -85,6 +85,19 @@ jobs:
                         "p3": result[2],
                         "number": result
                     })
+
+                elif game_id in [4, 7]:
+    
+                    result = draw["results"].zfill(4)
+    
+                    rows.append({
+                        "date": draw_date,
+                        "p1": result[0],
+                        "p2": result[1],
+                        "p3": result[2],
+                        "p4": result[3],
+                        "number": result
+                    })
     
                 existing_dates.add(draw_date)
                 added += 1
@@ -111,6 +124,17 @@ jobs:
                         "p1",
                         "p2",
                         "p3",
+                        "number"
+                    ]
+
+                elif game_id in [4, 7]:
+    
+                    fieldnames = [
+                        "date",
+                        "p1",
+                        "p2",
+                        "p3",
+                        "p4",
                         "number"
                     ]
     
