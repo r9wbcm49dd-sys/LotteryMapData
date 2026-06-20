@@ -26,12 +26,12 @@ jobs:
           from io import StringIO
 
           games = [
-              #(2, "csv/twocharms_day.csv"),
-              #(5, "csv/twocharms_night.csv"),
-              #(3, "csv/hint3_day.csv"),
-              #(6, "csv/hint3_night.csv"),
-              #(4, "csv/4Sight_day.csv"),
-              #(7, "csv/4Sight_night.csv"),
+              (2, "csv/twocharms_day.csv"),
+              (5, "csv/twocharms_night.csv"),
+              (3, "csv/hint3_day.csv"),
+              (6, "csv/hint3_night.csv"),
+              (4, "csv/4Sight_day.csv"),
+              (7, "csv/4Sight_night.csv"),
               (8, "csv/luckywizard.csv"),
               #(10, "csv/powerme.csv")
           ]
@@ -46,15 +46,16 @@ jobs:
             print("PROCESSING:", game_id, csv_path)
         
             data = requests.get(url).json()
-            print("LUCKYWIZARD SAMPLE:")
-            print(data[0])
-            break
+           
         
             with open(csv_path, "r", newline="") as f:
                 reader = csv.DictReader(f)
                 rows = list(reader)
         
-            existing_dates = {row["date"] for row in rows}
+            if game_id == 8:
+                existing_dates = {row["Date"] for row in rows}
+            else:
+                existing_dates = {row["date"] for row in rows}
         
             added = 0
         
@@ -102,31 +103,29 @@ jobs:
                         "number": result
                     })
 
-                #elif game_id == 8:
-    
-                    #result = draw["results"].zfill(4)
-    
-                    #rows.append({
-                        #"Date": draw_date,
-                        #"P1": result[0],
-                        #"P2": result[1],
-                        #"P3": result[2],
-                        #"P4": result[3],
-                        #"P5": result[4],
-                        #"Red": result[5]
-                    #})
-
                 elif game_id == 8:
+    
+                    result = draw["results"].split("-")
+    
+                    rows.append({
+                        "Date": draw_date,
+                        "P1": result[0],
+                        "P2": result[1],
+                        "P3": result[2],
+                        "P4": result[3],
+                        "P5": result[4],
+                        "Red": result[5]
+                    })
 
-                  print("LUCKYWIZARD DRAW:")
-                  print(draw)
-                  break
                 existing_dates.add(draw_date)
                 added += 1
     
                 print("ROW ADDED:", draw_date, result)
     
-            rows.sort(key=lambda row: row["date"])
+            if game_id == 8:
+                rows.sort(key=lambda row: row["Date"])
+            else:
+                rows.sort(key=lambda row: row["date"])
     
             with open(csv_path, "w", newline="") as f:
     
@@ -163,18 +162,16 @@ jobs:
 
                 elif game_id == 8:
     
-                    #fieldnames = [
-                        #"Date",
-                        #"P1",
-                        #"P2",
-                        #"P3",
-                        #"P4",
-                        #"P5",
-                        #"Red"
-                    #]
-                    print("LUCKYWIZARD DRAW:")
-                    print(draw)
-                    break
+                    fieldnames = [
+                        "Date",
+                        "P1",
+                        "P2",
+                        "P3",
+                        "P4",
+                        "P5",
+                        "Red"
+                    ]
+                    
     
                 writer = csv.DictWriter(
                     f,
