@@ -24,6 +24,13 @@ jobs:
           import csv
           import requests
           from io import StringIO
+          from datetime import datetime, timedelta
+
+          end_date = datetime.utcnow()
+          start_date = end_date - timedelta(days=7)
+          
+          start_str = start_date.strftime("%Y-%m-%d")
+          end_str = end_date.strftime("%Y-%m-%d") + "%2023:59"
 
           games = [
               (2, "csv/twocharms_day.csv"),
@@ -36,11 +43,13 @@ jobs:
               (10, "csv/powerme.csv")
           ]
 
-          #url = "https://wordpresswebapi.azurewebsites.net/api/ElectronicDrawing/ElectronicDrawingDateSearch/2/2026-06-14/2026-06-19%2023:59"
-
           for game_id, csv_path in games:
 
-            url = f"https://wordpresswebapi.azurewebsites.net/api/ElectronicDrawing/ElectronicDrawingDateSearch/{game_id}/2026-06-14/2026-06-19%2023:59"
+            url = (
+                f"https://wordpresswebapi.azurewebsites.net/api/"
+                f"ElectronicDrawing/ElectronicDrawingDateSearch/"
+                f"{game_id}/{start_str}/{end_str}"
+            )
         
             print("")
             print("PROCESSING:", game_id, csv_path)
